@@ -121,7 +121,7 @@ public class WebPReader extends ImageReader {
     }
 
     @Override
-    public ImageReadParam getDefaultReadParam() {
+    public WebPReadParam getDefaultReadParam() {
         return new WebPReadParam();
     }
 
@@ -130,10 +130,15 @@ public class WebPReader extends ImageReader {
         checkIndex(imageIndex);
         readData();
         readHeader();
-        WebPReadParam readParam = param != null ? (WebPReadParam) param : new WebPReadParam();
+        WebPReadParam readParam;
+        if (param instanceof WebPReadParam webPReadParam) {
+            readParam = webPReadParam;
+        } else {
+            readParam = this.getDefaultReadParam();
+        }
 
         int[] outParams = new int[4];
-        int[] pixels = WebP.decode(readParam.getDecoderOptions(), data, 0, data.length, outParams);
+        int[] pixels = WebP.decode(readParam.options(), data, 0, data.length, outParams);
 
         int width = outParams[1];
         int height = outParams[2];

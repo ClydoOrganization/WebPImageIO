@@ -54,7 +54,7 @@ class WebPWriter extends ImageWriter {
         ImageOutputStream output = (ImageOutputStream) getOutput();
         RenderedImage ri = image.getRenderedImage();
 
-        byte[] encodedData = encode(writeParam.getEncoderOptions(), ri);
+        byte[] encodedData = encode(writeParam.options(), ri);
         output.write(encodedData);
     }
 

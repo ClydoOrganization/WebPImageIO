@@ -13,13 +13,19 @@ import java.io.IOException;
 import java.util.Locale;
 
 public class WebPImageWriterSpi extends ImageWriterSpi {
+    private static final String vendorName = "Luciad";
+    private static final String version = "1.0";
+    private static final String[] names = {"webp", "WEBP", "WebP", "Webp"};
+    private static final String[] suffixes = {"webp"};
+    private static final String[] MIMETypes = {"image/webp"};
+
     public WebPImageWriterSpi() {
         super(
-                "Luciad",
-                "1.0",
-                new String[]{"WebP", "webp"},
-                new String[]{"webp"},
-                new String[]{"image/webp"},
+                vendorName,
+                version,
+                names,
+                suffixes,
+                MIMETypes,
                 WebPReader.class.getName(),
                 new Class[]{ImageOutputStream.class},
                 new String[]{WebPImageReaderSpi.class.getName()},

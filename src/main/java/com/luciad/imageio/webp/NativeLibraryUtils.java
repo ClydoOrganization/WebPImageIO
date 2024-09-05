@@ -1,40 +1,29 @@
 package com.luciad.imageio.webp;
 
-import java.io.File;
+import lombok.val;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 
 class NativeLibraryUtils {
     public static void loadFromJar() {
-        String os = System.getProperty("os.name").toLowerCase();
-        String bits = System.getProperty("os.arch").contains("64") ? "64" : "32";
+        val platform = getPlatform();
+        val archBits = getArchBits(false);
+        val libFilename = getLibraryFilename(platform);
 
-        String libFilename = "libwebp-imageio.so";
-        String platform = "linux";
-
-        if (os.contains("win")) {
-            platform = "win";
-            libFilename = "webp-imageio.dll";
-        } else if (os.contains("mac")) {
-            platform = "mac";
-            libFilename = "libwebp-imageio.dylib";
-        }
-
-        try (InputStream in = NativeLibraryUtils.class.getResourceAsStream(String.format("/native/%s/%s/%s", platform, bits, libFilename))) {
-            if (in == null) {
-                throw new RuntimeException(String.format("Could not find WebP native library for %s %s in the jar", platform, bits));
+        try (val inputStream = NativeLibraryUtils.class.getResourceAsStream(String.format("/native/%s/%s/%s", platform, archBits, libFilename))) {
+            if (inputStream == null) {
+                throw new RuntimeException(String.format("Could not find WebP native library for %s %s in the jar", platform, archBits));
             }
 
-            File tmpLibraryFile = Files.createTempFile("", libFilename).toFile();
+            val tmpLibraryFile = Files.createTempFile("webp-lib", libFilename).toFile();
             tmpLibraryFile.deleteOnExit();
+
+            // Efficient copying of the input stream to the temp file
             try (FileOutputStream out = new FileOutputStream(tmpLibraryFile)) {
-                byte[] buffer = new byte[8 * 1024];
-                int bytesRead;
-                while ((bytesRead = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, bytesRead);
-                }
+                Files.copy(inputStream, tmpLibraryFile.toPath());
             }
 
             System.load(tmpLibraryFile.getAbsolutePath());
@@ -45,14 +34,48 @@ class NativeLibraryUtils {
     }
 
     public static void loadLibrary() {
-        String str1 = System.getenv("PROCESSOR_ARCHITECTURE");
-        if (str1 == null)
-            str1 = System.getProperty("os.arch");
-        String str2 = str1.contains("64") ? "64" : "32";
+        val archBits = getArchBits(true);
+
         try {
-            System.loadLibrary("webp-imageio" + str2);
-        } catch (UnsatisfiedLinkError unsatisfiedLinkError) {
-            unsatisfiedLinkError.printStackTrace();
+            System.loadLibrary("webp-imageio" + archBits);
+        } catch (UnsatisfiedLinkError e) {
+            throw new RuntimeException(String.format("Failed to load the WebP library for architecture: %s", archBits), e);
+        }
+    }
+
+    @Contract(pure = true)
+    private static @NotNull String getLibraryFilename(@NotNull String platform) {
+        return switch (platform) {
+            case "win" -> "webp-imageio.dll";
+            case "mac" -> "libwebp-imageio.dylib";
+            case "linux" -> "libwebp-imageio.so";
+            default -> throw new IllegalArgumentException("Unknown platform: " + platform);
+        };
+    }
+
+    private static @NotNull String getArchBits(boolean env) {
+        String archBits;
+        if (env) {
+            archBits = System.getenv("PROCESSOR_ARCHITECTURE");
+            if (archBits == null) {
+                archBits = getArchBits(false);
+            }
+        } else {
+            archBits = System.getProperty("os.arch");
+        }
+        return archBits.contains("64") ? "64" : "32";
+    }
+
+    private static @NotNull String getPlatform() {
+        val os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) {
+            return "win";
+        } else if (os.contains("mac")) {
+            return "mac";
+        } else if (os.contains("nux") || os.contains("nix")) {
+            return "linux";
+        } else {
+            throw new UnsupportedOperationException("Unsupported OS: " + os);
         }
     }
 }

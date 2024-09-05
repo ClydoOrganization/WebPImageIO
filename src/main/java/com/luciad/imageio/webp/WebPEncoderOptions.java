@@ -1,16 +1,22 @@
 
 package com.luciad.imageio.webp;
 
+import org.jetbrains.annotations.NotNull;
+
 public class WebPEncoderOptions {
     static {
         WebP.loadNativeLibrary();
     }
 
+    private final WebPWriteParam webPWriteParam;
+
     long fPointer = createConfig();
 
-    public WebPEncoderOptions() {
+    public WebPEncoderOptions(WebPWriteParam webPWriteParam) {
         if (fPointer == 0)
             throw new OutOfMemoryError();
+
+        this.webPWriteParam = webPWriteParam;
     }
 
     @Override
@@ -42,6 +48,19 @@ public class WebPEncoderOptions {
 
     public void setLossless(boolean aLossless) {
         setLossless(fPointer, aLossless ? 1 : 0);
+    }
+
+    public CompressionType getCompressionType() {
+        return CompressionType.of(this.isLossless());
+    }
+
+    public void setCompressionType(@NotNull CompressionType type) {
+        this.setLossless(type.isLossless());
+        this.webPWriteParam.setCompressionType(type);
+    }
+
+    void unsetCompression(@NotNull CompressionType type) {
+        this.setLossless(type.isLossless());
     }
 
     public int getTargetSize() {

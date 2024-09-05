@@ -14,13 +14,19 @@ public class WebPImageReaderSpi extends ImageReaderSpi {
     private static final byte[] VP8L = {'V', 'P', '8', 'L'};
     private static final byte[] VP8X = {'V', 'P', '8', 'X'};
 
+    private static final String vendorName = "Luciad";
+    private static final String version = "1.0";
+    private static final String[] names = {"webp", "WEBP", "WebP", "Webp"};
+    private static final String[] suffixes = {"webp"};
+    private static final String[] MIMETypes = {"image/webp"};
+
     public WebPImageReaderSpi() {
         super(
-                "Luciad",
-                "1.0",
-                new String[]{"WebP", "webp"},
-                new String[]{"webp"},
-                new String[]{"image/webp"},
+                vendorName,
+                version,
+                names,
+                suffixes,
+                MIMETypes,
                 WebPReader.class.getName(),
                 new Class[]{ImageInputStream.class},
                 new String[]{WebPImageWriterSpi.class.getName()},
