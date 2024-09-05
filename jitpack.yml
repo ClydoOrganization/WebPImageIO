@@ -1,6 +1,6 @@
 jdk:
   - openjdk17
 env:
-  GROUP: net.clydo.webp
+  GROUP: com.luciad.imageio.webp
   ARTIFACT: WebPImageIO
   VERSION: 1.0.0

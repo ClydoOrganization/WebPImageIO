@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'net.clydo.webp'
+group = 'com.luciad.imageio.webp'
 version = '1.0'
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
