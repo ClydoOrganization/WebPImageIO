@@ -1,10 +1,17 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'application'
 }
 
 group = 'com.luciad.imageio.webp'
 version = '1.0'
+
+def main = "com.luciad.imageio.webp.WebPUtil"
+
+application {
+    mainClass = main
+}
 
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
 
@@ -17,6 +24,14 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.34'
 
     implementation 'org.jetbrains:annotations:24.0.0'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': main
+        )
+    }
 }
 
 java {
