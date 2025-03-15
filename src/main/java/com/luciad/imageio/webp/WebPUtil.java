@@ -101,7 +101,7 @@ public class WebPUtil {
             // Get compression type
             CompressionType compressionType;
             do {
-                System.out.print(CYAN + "Enter Compression Type [0 = Lossy, 1 = Lossless]: " + RESET);
+                System.out.print(CYAN + "Enter Compression Type [0 = Lossy (Lower quality, smaller size), 1 = Lossless (Higher quality, larger size)]: " + RESET);
                 while (!scanner.hasNextInt()) {
                     System.out.println(RED + "Invalid input! Please enter 0 for Lossy or 1 for Lossless." + RESET);
                     scanner.next(); // discard invalid input
